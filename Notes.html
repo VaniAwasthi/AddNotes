@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+    <head>
+<script src="Notes.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" href="Notes.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    </head>
+    <body>
+<div class="mainContainer">
+<div class="dashboardContainer p-4  w-75 ">
+  <div class="d-flex">
+    <button type="button" class="btn btn-dark btn-circle m-2" id='myBtn' onclick="openModal()"><i class="fa fa-plus"></i>
+    </button>  
+  <h2 class="py-1 pl-4">Notes</h2>
+</div>
+<div  id="displayNotes" class="d-flex m-4 flex-wrap"></div>
+
+
+</div>
+<div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content w-25 h-auto">
+      <div class="d-flex">
+        <p>Add Notes</p>
+        <span class="close ml-auto" onclick="closeButton()"><i class="fa fa-times"></i></span>
+      </div>
+     
+     <div>
+      <form>
+        <label for="fname">Title</label><br>
+        <input type="text" id="noteTitle" class="w-100 mb-2">
+        <label for="lname">Note</label><br>
+        <textarea id="noteDecription" maxlength="200"  rows="8" class="w-100">
+        </textarea>
+        <button type="button" class="btn btn-outline-secondary px-5 m-2 float-right" onclick="addPost(event)">Add</button>
+
+      </form> 
+     
+     </div>
+    </div>
+  
+  </div>
+</div>
+<script>
+
+var modal = document.getElementById("myModal");
+
+var span = document.getElementsByClassName("close")[0];
+
+
+//function to open modal
+ function openModal() {
+  modal.style.display = "block";
+}
+
+//function to close modal
+function closeButton() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+//calling get notes api here
+async function getNotes() {
+ 
+  axios
+      .get(
+        `https://reminders-task.hiring.durbin.live/notes`,
+      )
+      .then((res) => {
+        let tab = `<div></div>`
+        for (let r of res?.data?.data?.notes) {
+        tab += `<div class="m-4 notes position-relative">
+
+
+    <h4 class='text-dark p-2 '>${r.title} </h4>
+    <p class='p-2 '>${r.description}</p>
+    <div class='dateDiv d-flex p-1'>
+    <p>${new Date(r.created_at).toLocaleString().split(',')[0]}<p>
+      <p class='ml-auto'><i class="fa fa-edit"></i></p>
+      </div>
+  </div>  `;
+    }
+    if(tab!== undefined){
+    document.getElementById("displayNotes").innerHTML = tab;  
+  }
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+}
+
+getNotes();
+
+//adding notes here
+function addPost(e){
+  var titleNote = document.getElementById("noteTitle").value;
+var descriptionNote = document.getElementById("noteDecription").value;
+    e.preventDefault()
+    const postData = {
+      title: titleNote,
+      description:descriptionNote,
+     
+    }
+    axios
+      .post(
+        `https://reminders-task.hiring.durbin.live/note`,
+        postData,
+      )
+      .then((res) => {
+     
+      setTimeout(() => {
+          window.location.reload(false)
+
+        }, 1000)
+        alert('Note Added Successfully!')
+        closeButton();
+
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+</script>
+    </body>
+</html>
